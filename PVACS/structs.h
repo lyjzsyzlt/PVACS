@@ -24,6 +24,8 @@ struct batch
 	//vector<int> jobid;//批中工件编号
 	int freeSpace;//记录批的剩余空间
 	vector<job> BJob;//批里面存放的工件
+	float SI;//批的倾斜度
+	int flag = 1;//1表示该批还没有加入队列
 };
 
 // 机器

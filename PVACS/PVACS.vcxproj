@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ant.h" />
     <ClInclude Include="defines.h" />
     <ClInclude Include="functions.h" />
     <ClInclude Include="structs.h" />
@@ -154,6 +155,8 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ant.cpp" />
+    <ClCompile Include="functions.cpp" />
     <ClCompile Include="PVACS.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
