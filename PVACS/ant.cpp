@@ -15,11 +15,12 @@ void ant::generateV()
 {
 	Vmk = rand() % 100 / 100.0;
 	Vepc = 1 - Vmk;
+	sol.clear();
 }
 
 void ant::createBatchSeq()
 {
-	vector<batch> tempB = B;
+	tempB = B;
 	vector<float> pb;// 每只蚂蚁选择第一个批的概率
 	int sum = 0;
 	for (int i = 0; i < bNum; i++)
@@ -30,7 +31,7 @@ void ant::createBatchSeq()
 
 	float m = 0;
 	float r = rand() % 100 / 100.0;
-	vector<int> sol;//存放解
+	
 	// 按照概率选择第一批
 	for (int i = 0; i < bNum; i++)
 	{
@@ -110,13 +111,72 @@ void ant::createBatchSeq()
 		cout << sol[i] << "  ";
 	}
 	cout << endl;
-	/*for (int i = 0; i < sol.size(); i++)
+	for (int i = 0; i < sol.size(); i++)
 	{
 		cout <<i<<"   "<< tempB[sol[i]].BId << "  "<<tempB[sol[i]].JNum<<"  "<<tempB[sol[i]].BP[0]<<endl;
-	}*/
+	}
 
 
 }
+
+// LS算法
+void ant::LS()
+{
+	vector<int> SOL;//存放每一阶段的批序列（后面的覆盖前面的）
+	SOL = sol;
+	//对于每个阶段
+	for (int p = 0; p < k; p++)
+	{
+		//遍历每一个批
+		for (int h = 0; h < B.size(); h++)
+		{
+			float min=9999999;//整个式子的最小值
+			int selectMachine;//最终选择的机器
+			float max1 = -9999;
+			float max2 = -9999;
+			int CT;//K-1阶段，即上一阶段的完成时间
+
+			//如果是第一阶段，则上一阶段的完成时间为0
+			if (p = 0)
+				CT = 0;
+			else
+				CT = B[SOL[h]].BC[p-1];//上一阶段的完成时间
+			for (int i = 0; i < machineNum; i++)//第i台机器
+			{
+				int temp1;
+				temp1 = max(CT, M->avt[p][i]) + B[SOL[h]].BP[p] - CT;
+				if (temp1 > max1)
+					max1 = temp1;
+
+				float temp2 = getEPC(max(CT, M->avt[p][i]), B[SOL[h]].BP[p], p, i);
+				if (temp2 > max2)
+					max2 = temp2;
+			}
+		
+			for (int i = 0; i < machineNum; i++)
+			{
+				float temp = Vmk * (max(CT, M->avt[p][i]) + B[SOL[h]].BP[p] - CT) / max1 + Vepc * getEPC(max(CT, M->avt[p][i]), B[SOL[h]].BP[p], p, i) / max2;
+				if (temp < min)
+				{
+					min = temp;
+					selectMachine = i;
+				}
+			}
+
+			//选择了机器selectMachine后
+			tempB[SOL[h]].BC[p] = max(CT, M->avt[p][selectMachine]) + tempB[SOL[h]].BP[p];//更新批在此阶段的完成时间
+			M->avt[p][selectMachine] = tempB[SOL[h]].BC[p];//更新机器的可用时间
+		}
+		//获取下一个阶段的批序列（按照上一阶段的完成时间升序）
+		vector<batch> tempBB=tempB;
+		sort(tempBB.begin(), tempBB.end(), cmp3);
+		SOL.clear();
+		for (int j = 0; j < tempBB.size(); j++)
+			SOL.push_back(tempBB[j].BId);
+	}
+	
+}
 ant::~ant()
 {
+
 }

@@ -43,6 +43,11 @@ bool cmp2(const batch &b1, const batch &b2)
 {
 	return b1.SI > b2.SI;//按照批的倾斜度降序排列
 }
+
+bool cmp3(const batch &b1, const batch &b2)
+{
+	return b1.BC < b2.BC;//按照完成时间升序
+}
 // 初始化批的基本信息
 void initBatch(batch &B, int id)
 {
@@ -204,3 +209,4 @@ void initPh()
 		}
 	}
 }
+

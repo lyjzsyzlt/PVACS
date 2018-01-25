@@ -19,7 +19,7 @@ bool cmp(const job &J1, const job &J2);
 
 
 bool cmp2(const batch &b1, const batch &b2);
-
+bool cmp3(const batch &b1, const batch &b2);
 // 初始化批的基本信息
 void initBatch(batch &B, int id);
 
