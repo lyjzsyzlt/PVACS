@@ -1,6 +1,7 @@
 #include"stdafx.h"
 #include"functions.h"
 #include"structs.h"
+#include"Machine.h"
 #include<algorithm>
 #include<iostream>
 #include<vector>
@@ -210,3 +211,25 @@ void initPh()
 	}
 }
 
+Machine **M;
+
+void initM()
+{
+	ifstream in;
+	in.open("machine.txt", ios::in | ios::binary);
+	M = new Machine*[k];
+	for (int i = 0; i < k; i++)
+		M[i] = new Machine[machineNum];
+	for (int i = 0; i < k; i++)
+	{
+		
+		for (int j = 0; j < machineNum; j++)
+		{
+			//cout << "i=" << i << "j=" << j << "输入速度，功率;" ;
+			in >> M[i][j].V >> M[i][j].PW;
+			M[i][j].avt = 0;
+			M[i][j].List.clear();
+		}
+	}
+	
+}

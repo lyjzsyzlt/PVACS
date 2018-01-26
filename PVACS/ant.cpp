@@ -10,6 +10,7 @@ extern float phmk[100][100];//mk对应的信息素矩阵
 extern float phepc[100][100];//epc对应的信息素矩阵
 extern vector<batch> B;
 extern int bNum;
+extern Machine **M;
 
 void ant::generateV()
 {
@@ -128,10 +129,11 @@ void ant::LS()
 	for (int p = 0; p < k; p++)
 	{
 		//遍历每一个批
-		for (int h = 0; h < B.size(); h++)
+		for (int h = 0; h < tempB.size(); h++)
 		{
+			
 			float min=9999999;//整个式子的最小值
-			int selectMachine;//最终选择的机器
+			int selectMachine=0;//最终选择的机器
 			float max1 = -9999;
 			float max2 = -9999;
 			int CT;//K-1阶段，即上一阶段的完成时间
@@ -140,22 +142,24 @@ void ant::LS()
 			if (p = 0)
 				CT = 0;
 			else
-				CT = B[SOL[h]].BC[p-1];//上一阶段的完成时间
+				CT = tempB[SOL[h]].BC[p-1];//上一阶段的完成时间
+			
 			for (int i = 0; i < machineNum; i++)//第i台机器
 			{
 				int temp1;
-				temp1 = max(CT, M->avt[p][i]) + B[SOL[h]].BP[p] - CT;
+
+				temp1 = max(CT, M[p][i].avt) + tempB[SOL[h]].BP[p] - CT;
 				if (temp1 > max1)
 					max1 = temp1;
 
-				float temp2 = getEPC(max(CT, M->avt[p][i]), B[SOL[h]].BP[p], p, i);
+				float temp2 = getEPC1(max(CT, M[p][i].avt), tempB[SOL[h]].BP[p], p, i);
 				if (temp2 > max2)
 					max2 = temp2;
 			}
 		
 			for (int i = 0; i < machineNum; i++)
 			{
-				float temp = Vmk * (max(CT, M->avt[p][i]) + B[SOL[h]].BP[p] - CT) / max1 + Vepc * getEPC(max(CT, M->avt[p][i]), B[SOL[h]].BP[p], p, i) / max2;
+				float temp = Vmk * (max(CT, M[p][i].avt) + tempB[SOL[h]].BP[p] - CT) / max1 + Vepc * getEPC1(max(CT, M[p][i].avt), tempB[SOL[h]].BP[p], p, i) / max2;
 				if (temp < min)
 				{
 					min = temp;
@@ -164,18 +168,54 @@ void ant::LS()
 			}
 
 			//选择了机器selectMachine后
-			tempB[SOL[h]].BC[p] = max(CT, M->avt[p][selectMachine]) + tempB[SOL[h]].BP[p];//更新批在此阶段的完成时间
-			M->avt[p][selectMachine] = tempB[SOL[h]].BC[p];//更新机器的可用时间
+			//计算待机的电费
+			cout <<"kk="<< M[p][selectMachine].List.empty() << endl;
+			if (M[p][selectMachine].List.empty())
+			{
+				EPC += getEPC2(0, max(CT, M[p][selectMachine].avt));
+			}
+			else
+			{
+				EPC += getEPC2(M[p][selectMachine].List.back().BC[p], max(CT, M[p][selectMachine].avt) - M[p][selectMachine].List.back().BC[p]);
+			}
+
+			tempB[SOL[h]].BC[p] = max(CT, M[p][selectMachine].avt) + tempB[SOL[h]].BP[p];//更新批在此阶段的完成时间
+			M[p][selectMachine].avt = tempB[SOL[h]].BC[p];//更新机器的可用时间
+			M[p][selectMachine].List.push_back(tempB[SOL[h]]);
+			EPC += getEPC1(max(CT, M[p][selectMachine].avt), B[SOL[h]].BP[p], p, selectMachine);
+
+			//输出批的开始，结束时间
+			cout << "批：" << B[SOL[h]].BId << '\t' << "开始时间" << max(CT, M[p][selectMachine].avt) << '\t' << "完成时间" << max(CT, M[p][selectMachine].avt) + B[SOL[h]].BP[p] << endl;
 		}
 		//获取下一个阶段的批序列（按照上一阶段的完成时间升序）
 		vector<batch> tempBB=tempB;
 		sort(tempBB.begin(), tempBB.end(), cmp3);
+		Cmax = tempBB[tempBB.size() - 1].BC[p];	
 		SOL.clear();
 		for (int j = 0; j < tempBB.size(); j++)
 			SOL.push_back(tempBB[j].BId);
 	}
+
+	for (int p = 0; p < k; p++)
+	{
+		for (int i = 0; i < machineNum; i++)
+		{
+			EPC += getEPC2(M[p][i].List.back().BC[p], Cmax - M[p][i].List.back().BC[p]);
+		}
+	}
 	
 }
+float ant::getEPC1(float t, float detaT, int k, int l)
+{
+	
+	return 0.0f;
+}
+
+float ant::getEPC2(float t, float detaT)
+{
+	return 0.0f;
+}
+
 ant::~ant()
 {
 

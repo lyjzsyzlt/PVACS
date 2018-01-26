@@ -8,23 +8,25 @@ private:
 	// 用户偏好向量
 	float Vmk;
 	float Vepc;
-	vector<int> sol;//存放解
-	vector<batch> tempB;
-	Machine *M;
-	//int bNum;// 批的数量
-	/*static int pos[100];// 位置
-	static int info[100][100];// 启发式信息*/
+	
+	
+	float Cmax;//记录最大makespan
+	float EPC;//记录最终的EPC
+
 	
 public:
 	int id;
+	vector<int> sol;//存放解
+	vector<batch> tempB;
 	ant()
 	{
-		M = new Machine();
+		
 	};
 	void generateV();//产生偏好向量的两个值
 	void createBatchSeq();// 构造解（批序列）
 	void LS();// LS算法
-	int getEPC(int t, int detaT,int k,int l);// 计算EPC，t为下界，detaT为整个过程的时间,机器为第k阶段的第l台机器
+	float getEPC1(float t, float detaT,int k,int l);// 计算EPC，t为下界，detaT为整个过程的时间,机器为第k阶段的第l台机器
+	float getEPC2(float t, float detaT);//计算机器的待机电费
 	~ant();
 };
 

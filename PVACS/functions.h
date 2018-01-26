@@ -44,5 +44,5 @@ float phepc[100][100];//epc对应的信息素矩阵*/
 
 // 初始化信息素矩阵
 void initPh();
-
+void initM();
 #endif // !functions_H
